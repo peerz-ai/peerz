@@ -1,2 +1,2 @@
-from petals.client.routing.sequence_manager import RemoteSequenceManager, maybe_log_traceback
-from petals.client.routing.spending_policy import NoSpendingPolicy, SpendingPolicyBase
+from peerz.client.routing.sequence_manager import RemoteSequenceManager, maybe_log_traceback
+from peerz.client.routing.spending_policy import NoSpendingPolicy, SpendingPolicyBase

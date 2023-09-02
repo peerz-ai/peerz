@@ -4,8 +4,8 @@ import torch
 from accelerate import init_empty_weights
 from transformers import PretrainedConfig
 
-from petals.utils.convert_block import QuantType
-from petals.utils.misc import get_size_in_bytes
+from peerz.utils.convert_block import QuantType
+from peerz.utils.misc import get_size_in_bytes
 
 
 def resolve_block_dtype(config: PretrainedConfig, dtype: Union[str, torch.dtype]) -> torch.dtype:

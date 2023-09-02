@@ -5,10 +5,10 @@ from hivemind import get_logger
 from transformers.models.llama import LlamaConfig
 from transformers.models.llama.modeling_llama import LlamaAttention
 
-from petals.client.config import ClientConfig
-from petals.client.lm_head import LMHeadConfig
-from petals.client.ptune import PTuneConfig
-from petals.models.llama.block import WrappedLlamaBlock
+from peerz.client.config import ClientConfig
+from peerz.client.lm_head import LMHeadConfig
+from peerz.client.ptune import PTuneConfig
+from peerz.models.llama.block import WrappedLlamaBlock
 
 logger = get_logger(__name__)
 

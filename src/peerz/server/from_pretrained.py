@@ -22,11 +22,11 @@ from huggingface_hub.utils import EntryNotFoundError
 from transformers import PretrainedConfig
 from transformers.utils import get_file_from_repo
 
-from petals.constants import DTYPE_MAP
-from petals.server.block_utils import resolve_block_dtype
-from petals.utils.auto_config import AutoDistributedConfig
-from petals.utils.disk_cache import DEFAULT_CACHE_DIR, allow_cache_reads, allow_cache_writes, free_disk_space_for
-from petals.utils.hf_auth import always_needs_auth
+from peerz.constants import DTYPE_MAP
+from peerz.server.block_utils import resolve_block_dtype
+from peerz.utils.auto_config import AutoDistributedConfig
+from peerz.utils.disk_cache import DEFAULT_CACHE_DIR, allow_cache_reads, allow_cache_writes, free_disk_space_for
+from peerz.utils.hf_auth import always_needs_auth
 
 logger = get_logger(__name__)
 

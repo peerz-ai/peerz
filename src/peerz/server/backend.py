@@ -13,10 +13,10 @@ from tensor_parallel import TensorParallel
 from tensor_parallel.tensor_parallel import PerDeviceTensors
 from transformers import PretrainedConfig
 
-from petals.data_structures import InferenceMetadata
-from petals.server.memory_cache import MemoryCache
-from petals.server.task_pool import PrioritizedTaskPool
-from petals.utils.misc import get_size_in_bytes, is_dummy
+from peerz.data_structures import InferenceMetadata
+from peerz.server.memory_cache import MemoryCache
+from peerz.server.task_pool import PrioritizedTaskPool
+from peerz.utils.misc import get_size_in_bytes, is_dummy
 
 logger = get_logger(__name__)
 
@@ -35,7 +35,7 @@ class TransformerBackend(ModuleBackend):
         max_chunk_size_bytes: int,
         **kwargs,
     ):
-        import petals.utils.peft as _peft_module
+        import peerz.utils.peft as _peft_module
 
         self._peft_module = _peft_module
 

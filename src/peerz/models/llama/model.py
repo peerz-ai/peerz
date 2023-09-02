@@ -7,12 +7,12 @@ from hivemind.utils.logging import get_logger
 from transformers.modeling_outputs import BaseModelOutputWithPast
 from transformers.models.llama import LlamaForCausalLM, LlamaForSequenceClassification, LlamaModel, LlamaPreTrainedModel
 
-from petals.client.from_pretrained import FromPretrainedMixin
-from petals.client.lm_head import LMHead
-from petals.client.ptune import PTuneMixin
-from petals.client.remote_generation import RemoteGenerationMixin, RemotePastKeyValues
-from petals.client.remote_sequential import RemoteSequential
-from petals.models.llama.config import DistributedLlamaConfig
+from peerz.client.from_pretrained import FromPretrainedMixin
+from peerz.client.lm_head import LMHead
+from peerz.client.ptune import PTuneMixin
+from peerz.client.remote_generation import RemoteGenerationMixin, RemotePastKeyValues
+from peerz.client.remote_sequential import RemoteSequential
+from peerz.models.llama.config import DistributedLlamaConfig
 
 logger = get_logger(__name__)
 
@@ -90,10 +90,6 @@ class DistributedLlamaModel(FromPretrainedMixin, PTuneMixin, LlamaModel):
             hypo_ids=past_key_values.hypo_ids if past_key_values is not None else None,
         )
 
-        if past_key_values is None:
-            past_key_values = RemotePastKeyValues()
-        past_key_values.update_seen(hidden_states.size(1))
-
         # Remove prefix
         if use_prompts:
             hidden_states = hidden_states[:, self.pre_seq_len :]
@@ -101,10 +97,9 @@ class DistributedLlamaModel(FromPretrainedMixin, PTuneMixin, LlamaModel):
         # Add last hidden state
         hidden_states = self.norm(hidden_states)
         hidden_states = hidden_states.view(output_shape)
-
         return BaseModelOutputWithPast(
             last_hidden_state=hidden_states,
-            past_key_values=past_key_values,
+            past_key_values=RemotePastKeyValues(),
             hidden_states=None,
             attentions=None,
         )

@@ -17,16 +17,18 @@ from safetensors import safe_open
 from safetensors.torch import load_file
 from transformers.utils import get_file_from_repo
 
-from petals.server.block_utils import resolve_block_dtype
-from petals.utils.convert_block import QuantType
-from petals.utils.disk_cache import allow_cache_reads, allow_cache_writes, free_disk_space_for
-from petals.utils.misc import get_size_in_bytes
+from peerz.server.block_utils import resolve_block_dtype
+from peerz.utils.convert_block import QuantType
+from peerz.utils.disk_cache import allow_cache_reads, allow_cache_writes, free_disk_space_for
+from peerz.utils.misc import get_size_in_bytes
 
 logger = get_logger(__name__)
 
 
 def check_peft_repository(repo_id: str) -> bool:
-    return HfFileSystem().exists(f"{repo_id}/{SAFETENSORS_WEIGHTS_NAME}")
+    fs = HfFileSystem()
+    list_of_files = fs.glob(f"{repo_id}/{SAFETENSORS_WEIGHTS_NAME}", detail=False)
+    return len(list_of_files) > 0
 
 
 def load_specific_module(block_idx: int, filepath: str, framework: str = "pt", device: Optional[int] = None):

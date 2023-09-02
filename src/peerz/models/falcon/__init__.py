@@ -1,11 +1,11 @@
-from petals.models.falcon.block import WrappedFalconBlock
-from petals.models.falcon.config import DistributedFalconConfig
-from petals.models.falcon.model import (
+from peerz.models.falcon.block import WrappedFalconBlock
+from peerz.models.falcon.config import DistributedFalconConfig
+from peerz.models.falcon.model import (
     DistributedFalconForCausalLM,
     DistributedFalconForSequenceClassification,
     DistributedFalconModel,
 )
-from petals.utils.auto_config import register_model_classes
+from peerz.utils.auto_config import register_model_classes
 
 register_model_classes(
     config=DistributedFalconConfig,

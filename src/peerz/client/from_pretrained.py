@@ -9,7 +9,7 @@ from typing import List, Optional, Tuple, Union
 from hivemind.utils.logging import get_logger
 from transformers import BloomPreTrainedModel, modeling_utils
 
-from petals.utils.version import get_compatible_model_repo
+from peerz.utils.version import get_compatible_model_repo
 
 logger = get_logger(__name__)
 
@@ -32,10 +32,10 @@ class FromPretrainedMixin:
 
     from_pretrained.__doc__ = BloomPreTrainedModel.from_pretrained.__doc__.replace(
         "low_cpu_mem_usage(`bool`, *optional*)",
-        "low_cpu_mem_usage(`bool`, *optional*, defaults to `True` in Petals)",
+        "low_cpu_mem_usage(`bool`, *optional*, defaults to `True` in Peerz)",
     ).replace(
         "torch_dtype (`str` or `torch.dtype`, *optional*)",
-        'torch_dtype (`str` or `torch.dtype`, *optional*, defaults to `"auto"` in Petals)',
+        'torch_dtype (`str` or `torch.dtype`, *optional*, defaults to `"auto"` in Peerz)',
     )
 
 

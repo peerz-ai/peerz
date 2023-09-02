@@ -12,13 +12,13 @@ from transformers.models.falcon import (
     FalconPreTrainedModel,
 )
 
-from petals.client.from_pretrained import FromPretrainedMixin
-from petals.client.lm_head import LMHead
-from petals.client.ptune import PTuneMixin
-from petals.client.remote_generation import RemoteGenerationMixin, RemotePastKeyValues
-from petals.client.remote_sequential import RemoteSequential
-from petals.models.falcon.config import DistributedFalconConfig
-from petals.utils.auto_config import DefaultRevisionMixin
+from peerz.client.from_pretrained import FromPretrainedMixin
+from peerz.client.lm_head import LMHead
+from peerz.client.ptune import PTuneMixin
+from peerz.client.remote_generation import RemoteGenerationMixin, RemotePastKeyValues
+from peerz.client.remote_sequential import RemoteSequential
+from peerz.models.falcon.config import DistributedFalconConfig
+from peerz.utils.auto_config import DefaultRevisionMixin
 
 logger = get_logger(__name__)
 

@@ -13,12 +13,12 @@ from hivemind.p2p import P2P
 from hivemind.proto import runtime_pb2
 from hivemind.utils.tensor_descr import BatchTensorDescriptor
 
-from petals.client.config import ClientConfig
-from petals.client.routing import RemoteSequenceManager, maybe_log_traceback
-from petals.data_structures import CHAIN_DELIMITER, ModuleUID, RemoteSpanInfo, RPCInfo
-from petals.server.handler import TransformerConnectionHandler
-from petals.utils.misc import DUMMY, DUMMY_INT64, is_dummy
-from petals.utils.packaging import pack_args_kwargs
+from peerz.client.config import ClientConfig
+from peerz.client.routing import RemoteSequenceManager, maybe_log_traceback
+from peerz.data_structures import CHAIN_DELIMITER, ModuleUID, RemoteSpanInfo, RPCInfo
+from peerz.server.handler import TransformerConnectionHandler
+from peerz.utils.misc import DUMMY, DUMMY_INT64, is_dummy
+from peerz.utils.packaging import pack_args_kwargs
 
 logger = get_logger(__name__)
 
@@ -211,7 +211,6 @@ class InferenceSession:
         self._position = 0
         self._max_length = max_length
         self.output_ids = None
-        self.past_key_values = None
 
     @property
     def num_blocks(self) -> int:
@@ -372,11 +371,11 @@ class InferenceSession:
         self.close()
 
     @property
-    def last_token_id(self) -> Optional[torch.Tensor]:  # Backward compatibility with Petals < 2.1.0
+    def last_token_id(self) -> Optional[torch.Tensor]:  # Backward compatibility with Peerz < 2.1.0
         return self.output_ids[:, -1:] if self.output_ids is not None else None
 
     @last_token_id.setter
-    def last_token_id(self, value: torch.Tensor):  # Backward compatibility with Petals < 2.1.0
+    def last_token_id(self, value: torch.Tensor):  # Backward compatibility with Peerz < 2.1.0
         if self.output_ids is None:
             raise RuntimeError("Can't override `last_token_id` since the session has not stepped yet")
         self.output_ids[:, -1:] = value

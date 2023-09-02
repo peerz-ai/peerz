@@ -2,43 +2,34 @@ from __future__ import annotations
 
 import gc
 import math
-import multiprocessing as mp
 import os
 import random
 import sys
 import threading
 import time
-from typing import Dict, List, Optional, Sequence, Union
+from typing import List, Optional, Sequence, Union
 
-import hivemind
 import psutil
 import torch
 import torch.mps
-from hivemind import DHT, MAX_DHT_TIME_DISCREPANCY_SECONDS, BatchTensorDescriptor, get_dht_time
+from hivemind import DHT, MAX_DHT_TIME_DISCREPANCY_SECONDS
 from hivemind.moe.server.layers import add_custom_models_from_file
-from hivemind.moe.server.runtime import Runtime
 from hivemind.proto.runtime_pb2 import CompressionType
 from hivemind.utils.logging import get_logger
-from transformers import PretrainedConfig
 
-import petals
-from petals.constants import DTYPE_MAP, PUBLIC_INITIAL_PEERS
-from petals.data_structures import CHAIN_DELIMITER, UID_DELIMITER, ModelInfo, ServerInfo, ServerState, parse_uid
-from petals.server import block_selection
-from petals.server.backend import TransformerBackend, merge_inference_pools_inplace
-from petals.server.block_utils import get_block_size, resolve_block_dtype
-from petals.server.from_pretrained import load_pretrained_block
-from petals.server.handler import TransformerConnectionHandler
-from petals.server.memory_cache import MemoryCache
-from petals.server.reachability import ReachabilityProtocol, check_direct_reachability, validate_reachability
-from petals.server.throughput import get_dtype_name, get_server_throughput
-from petals.utils.auto_config import AutoDistributedConfig
-from petals.utils.convert_block import QuantType, check_device_balance, convert_block
-from petals.utils.dht import declare_active_modules, get_remote_module_infos
-from petals.utils.misc import get_size_in_bytes
-from petals.utils.ping import PingAggregator
-from petals.utils.random import sample_up_to
-from petals.utils.version import get_compatible_model_repo
+import peerz
+from peerz.constants import DTYPE_MAP, PUBLIC_INITIAL_PEERS
+from peerz.data_structures import CHAIN_DELIMITER, UID_DELIMITER, ModelInfo, ServerInfo, ServerState
+from peerz.server import block_selection
+from peerz.server.block_utils import get_block_size, resolve_block_dtype
+from peerz.server.reachability import ReachabilityProtocol, check_direct_reachability
+from peerz.server.throughput import get_dtype_name, get_server_throughput
+from peerz.utils.auto_config import AutoDistributedConfig
+from peerz.utils.convert_block import QuantType, check_device_balance
+from peerz.utils.dht import get_remote_module_infos
+from peerz.utils.misc import get_size_in_bytes
+from peerz.utils.version import get_compatible_model_repo
+from peerz.server.container import ModuleContainer
 
 logger = get_logger(__name__)
 
@@ -254,7 +245,7 @@ class Server:
         self.server_info = ServerInfo(
             state=ServerState.JOINING,
             public_name=public_name,
-            version=petals.__version__,
+            version=peerz.__version__,
             adapters=tuple(adapters),
             torch_dtype=str(torch_dtype).replace("torch.", ""),
             quant_type=quant_type.name.lower(),
@@ -304,7 +295,7 @@ class Server:
         total_memory_per_block = block_size + self._cache_bytes_per_block
         if self.adapters:
             # Delay import of petals.utils.peft to avoid unnecessary import of bitsandbytes
-            from petals.utils.peft import estimate_adapter_memory_per_block
+            from peerz.utils.peft import estimate_adapter_memory_per_block
 
             total_memory_per_block += estimate_adapter_memory_per_block(
                 self.block_config,
@@ -426,350 +417,3 @@ class Server:
             self.reachability_protocol.shutdown()
         self.dht.shutdown()
         self.dht.join()
-
-
-class ModuleContainer(threading.Thread):
-    """Serves a set of specific Bloom layers for inference, forward, and backward. Announces itself over the DHT."""
-
-    # noinspection PyMethodOverriding
-    @classmethod
-    def create(
-        cls,
-        *,
-        dht: DHT,
-        dht_prefix: str,
-        converted_model_name_or_path: str,
-        block_config: PretrainedConfig,
-        attn_cache_bytes: int,
-        server_info: ServerInfo,
-        model_info: ModelInfo,
-        block_indices: List[int],
-        min_batch_size: int,
-        max_batch_size: int,
-        max_chunk_size_bytes: int,
-        max_alloc_timeout: float,
-        torch_dtype: torch.dtype,
-        cache_dir: str,
-        max_disk_space: int,
-        device: Union[str, torch.device],
-        compression: CompressionType,
-        update_period: float,
-        expiration: Optional[float],
-        revision: Optional[str],
-        token: Optional[Union[str, bool]],
-        quant_type: QuantType,
-        tensor_parallel_devices: Sequence[torch.device],
-        should_validate_reachability: bool,
-        **kwargs,
-    ) -> ModuleContainer:
-        module_uids = [f"{dht_prefix}{UID_DELIMITER}{block_index}" for block_index in block_indices]
-        memory_cache = MemoryCache(attn_cache_bytes, max_alloc_timeout)
-
-        server_info.state = ServerState.JOINING
-        dht_announcer = ModuleAnnouncerThread(
-            module_uids,
-            dht,
-            server_info,
-            model_info,
-            block_config=block_config,
-            memory_cache=memory_cache,
-            update_period=update_period,
-            expiration=expiration,
-            daemon=True,
-        )
-        dht_announcer.start()
-        logger.info(f"Announced that blocks {block_indices} are joining")
-
-        assert len(tensor_parallel_devices) >= 1 and all(isinstance(d, torch.device) for d in tensor_parallel_devices)
-
-        blocks = {}
-        try:
-            for module_uid, block_index in zip(module_uids, block_indices):
-                block = load_pretrained_block(
-                    converted_model_name_or_path,
-                    block_index,
-                    config=block_config,
-                    torch_dtype=torch_dtype,
-                    revision=revision,
-                    token=token,
-                    cache_dir=cache_dir,
-                    max_disk_space=max_disk_space,
-                )
-                block = convert_block(
-                    block,
-                    block_index,
-                    block_config,
-                    tensor_parallel_devices,
-                    device,
-                    quant_type,
-                    adapters=server_info.adapters,
-                    freeze=True,
-                    token=token,
-                    cache_dir=cache_dir,
-                    max_disk_space=max_disk_space,
-                )
-                blocks[module_uid] = TransformerBackend(
-                    module_uid,
-                    block,
-                    config=block_config,
-                    memory_cache=memory_cache,
-                    backend_dtype=torch_dtype,
-                    max_chunk_size_bytes=max_chunk_size_bytes,
-                    args_schema=(
-                        BatchTensorDescriptor(
-                            1, 2048, block_config.hidden_size, dtype=torch_dtype, compression=compression
-                        ),
-                    ),
-                    kwargs_schema={},
-                    outputs_schema=(
-                        BatchTensorDescriptor(
-                            1, 2048, block_config.hidden_size, dtype=torch_dtype, compression=compression
-                        ),
-                    ),
-                    min_batch_size=min_batch_size,
-                    max_batch_size=max_batch_size,
-                )
-
-            merge_inference_pools_inplace(blocks)
-
-            if should_validate_reachability:
-                validate_reachability(dht.peer_id)
-        except:
-            logger.debug("Shutting down backends")
-            for backend in blocks.values():
-                backend.shutdown()
-
-            dht_announcer.announce(ServerState.OFFLINE)
-            logger.info(f"Announced that blocks {module_uids} are offline")
-            raise
-
-        return cls(
-            dht,
-            dht_prefix,
-            blocks,
-            dht_announcer=dht_announcer,
-            server_info=server_info,
-            update_period=update_period,
-            expiration=expiration,
-            **kwargs,
-        )
-
-    def __init__(
-        self,
-        dht: DHT,
-        dht_prefix: str,
-        module_backends: Dict[str, TransformerBackend],
-        *,
-        inference_max_length: int,
-        num_handlers: int,
-        dht_announcer: ModuleAnnouncerThread,
-        server_info: ServerInfo,
-        update_period: float,
-        expiration: Optional[float] = None,
-        request_timeout: float,
-        session_timeout: float,
-        step_timeout: float,
-        start: bool,
-        **kwargs,
-    ):
-        super().__init__()
-
-        self.dht, self.module_backends = dht, module_backends
-        self.server_info, self.update_period, self.expiration = server_info, update_period, expiration
-
-        handler_event_queues = [mp.Queue() for _ in range(num_handlers)]
-        self.conn_handlers = [
-            TransformerConnectionHandler(
-                dht,
-                self.module_backends,
-                adapters=server_info.adapters,
-                dht_prefix=dht_prefix,
-                handler_event_queues=handler_event_queues,
-                handler_index=i,
-                inference_max_length=inference_max_length,
-                request_timeout=request_timeout,
-                session_timeout=session_timeout,
-                step_timeout=step_timeout,
-                quant_type=QuantType[server_info.quant_type.upper()],
-            )
-            for i in range(num_handlers)
-        ]
-
-        self.runtime = RuntimeWithDeduplicatedPools(self.module_backends, device=None, **kwargs)
-        # note: We set device=None in runtime to avoid moving all modules to device 0 in runtime.run(). tensor_parallel has already moved it as needed.
-
-        dht_announcer.announce(ServerState.ONLINE)
-        self.dht_announcer = dht_announcer
-
-        if start:
-            self.run_in_background(await_ready=True)
-
-    def run(self):
-        """
-        Runs ModuleContainer in the current thread. Initializes dht if necessary, starts connection handlers,
-        runs Runtime (self.runtime) to process incoming requests.
-        """
-        for handler in self.conn_handlers:
-            handler.run_in_background()
-
-        self.runtime.run()
-
-    def run_in_background(self, await_ready=True, timeout=None):
-        """
-        Starts ModuleContainer in a background thread. if await_ready, this method will wait until the container
-        is ready to process incoming requests or for :timeout: seconds max.
-        """
-        self.start()
-        if await_ready and not self.ready.wait(timeout=timeout):
-            raise TimeoutError("ModuleContainer didn't notify .ready in {timeout} seconds")
-
-    @property
-    def ready(self) -> mp.synchronize.Event:
-        """
-        An event (multiprocessing.Event) that is set when the container is ready to process requests.
-
-        Example
-        =======
-        >>> container.start()
-        >>> container.ready.wait(timeout=10)
-        >>> print("Container ready" if container.ready.is_set() else "Container didn't start in 10 seconds")
-        """
-        return self.runtime.ready  # mp.Event that is true if self is ready to process batches
-
-    def is_healthy(self) -> bool:
-        return all(handler.is_alive() for handler in self.conn_handlers) and all(
-            pool.is_alive() for pool in self.runtime.pools
-        )
-
-    def shutdown(self):
-        """
-        Gracefully terminate the container, process-safe.
-        Please note that terminating container otherwise (e.g. by killing processes) may result in zombie processes.
-        If you did already cause a zombie outbreak, your only option is to kill them with -9 (SIGKILL).
-        """
-        self.dht_announcer.announce(ServerState.OFFLINE)
-        logger.info(f"Announced that blocks {list(self.module_backends.keys())} are offline")
-
-        self.ready.clear()
-
-        logger.debug("Shutting down connection handlers")
-        for handler in self.conn_handlers:
-            handler.shutdown()
-
-        logger.debug(f"Shutting down pools")
-        for pool in self.runtime.pools:
-            if pool.is_alive():
-                pool.shutdown()
-
-        logger.debug(f"Shutting down runtime")
-        self.runtime.shutdown()
-
-        logger.debug("Shutting down backends")
-        for backend in self.module_backends.values():
-            backend.shutdown()
-
-        logger.info("Module container shut down successfully")
-
-
-class ModuleAnnouncerThread(threading.Thread):
-    """Periodically announces that this container hosts the specified modules, visible to all DHT peers"""
-
-    def __init__(
-        self,
-        module_uids: List[str],
-        dht: DHT,
-        server_info: ServerInfo,
-        model_info: ModelInfo,
-        *,
-        block_config: PretrainedConfig,
-        memory_cache: MemoryCache,
-        update_period: float,
-        expiration: float,
-        max_pinged: int = 5,
-        **kwargs,
-    ):
-        super().__init__(**kwargs)
-        self.module_uids = module_uids
-        self.dht = dht
-        self.server_info = server_info
-        self.model_info = model_info
-        self.memory_cache = memory_cache
-
-        self.bytes_per_token = block_config.hidden_size * get_size_in_bytes(DTYPE_MAP[server_info.torch_dtype])
-        self.bytes_per_token //= block_config.num_key_value_groups
-
-        self.update_period = update_period
-        self.expiration = expiration
-        self.trigger = threading.Event()
-
-        self.dht_prefix = parse_uid(module_uids[0])[0]
-        block_indices = [parse_uid(uid)[1] for uid in module_uids]
-        self.server_info.start_block = min(block_indices)
-        self.server_info.end_block = max(block_indices) + 1
-
-        self.max_pinged = max_pinged
-        self.next_uids = [
-            f"{self.dht_prefix}{UID_DELIMITER}{i}"
-            for i in range(self.server_info.start_block + 1, self.server_info.end_block + 1)
-        ]
-        self.ping_aggregator = PingAggregator(self.dht)
-
-    def run(self) -> None:
-        while True:
-            start_time = time.perf_counter()
-
-            self.server_info.cache_tokens_left = self.memory_cache.bytes_left // self.bytes_per_token
-            if self.server_info.state != ServerState.OFFLINE:
-                self._ping_next_servers()
-                self.server_info.next_pings = {
-                    peer_id.to_base58(): rtt for peer_id, rtt in self.ping_aggregator.to_dict().items()
-                }
-            else:
-                self.server_info.next_pings = None  # No need to ping if we're disconnecting
-
-            declare_active_modules(
-                self.dht,
-                self.module_uids,
-                self.server_info,
-                expiration_time=get_dht_time() + self.expiration,
-            )
-            if self.server_info.state == ServerState.OFFLINE:
-                break
-            if not self.dht_prefix.startswith("_"):  # Not private
-                self.dht.store(
-                    key="_petals.models",
-                    subkey=self.dht_prefix,
-                    value=self.model_info.to_dict(),
-                    expiration_time=get_dht_time() + self.expiration,
-                )
-
-            delay = self.update_period - (time.perf_counter() - start_time)
-            if delay < 0:
-                logger.warning(
-                    f"Declaring blocks to DHT takes more than --update_period, consider increasing it (currently {self.update_period})"
-                )
-            self.trigger.wait(max(delay, 0))
-            self.trigger.clear()
-
-    def announce(self, state: ServerState) -> None:
-        self.server_info.state = state
-        self.trigger.set()
-        if state == ServerState.OFFLINE:
-            self.join()
-
-    def _ping_next_servers(self) -> Dict[hivemind.PeerID, float]:
-        module_infos = get_remote_module_infos(self.dht, self.next_uids, latest=True)
-        middle_servers = {peer_id for info in module_infos[:-1] for peer_id in info.servers}
-        pinged_servers = set(sample_up_to(middle_servers, self.max_pinged))
-        pinged_servers.discard(self.dht.peer_id)
-        # Sample servers hosting the block after the last one (most likely continuations) separately
-        pinged_servers |= set(sample_up_to(module_infos[-1].servers, self.max_pinged))
-        self.ping_aggregator.ping(list(pinged_servers))
-
-
-class RuntimeWithDeduplicatedPools(Runtime):
-    """A version of hivemind.moe.server.runtime.Runtime that allows multiple backends to reuse a task pool"""
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.pools = tuple(set(self.pools))

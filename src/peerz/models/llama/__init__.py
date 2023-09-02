@@ -1,11 +1,11 @@
-from petals.models.llama.block import WrappedLlamaBlock
-from petals.models.llama.config import DistributedLlamaConfig
-from petals.models.llama.model import (
+from peerz.models.llama.block import WrappedLlamaBlock
+from peerz.models.llama.config import DistributedLlamaConfig
+from peerz.models.llama.model import (
     DistributedLlamaForCausalLM,
     DistributedLlamaForSequenceClassification,
     DistributedLlamaModel,
 )
-from petals.utils.auto_config import register_model_classes
+from peerz.utils.auto_config import register_model_classes
 
 register_model_classes(
     config=DistributedLlamaConfig,
