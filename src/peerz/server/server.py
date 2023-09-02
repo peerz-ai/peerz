@@ -28,7 +28,6 @@ from peerz.utils.auto_config import AutoDistributedConfig
 from peerz.utils.convert_block import QuantType, check_device_balance
 from peerz.utils.dht import get_remote_module_infos
 from peerz.utils.misc import get_size_in_bytes
-from peerz.utils.version import get_compatible_model_repo
 from peerz.server.container import ModuleContainer
 
 logger = get_logger(__name__)
@@ -87,7 +86,6 @@ class Server:
     ):
         """Create a server with one or more bloom blocks. See run_server.py for documentation."""
 
-        converted_model_name_or_path = get_compatible_model_repo(converted_model_name_or_path)
         self.converted_model_name_or_path = converted_model_name_or_path
 
         self.num_handlers = num_handlers
@@ -294,7 +292,7 @@ class Server:
         block_size = get_block_size(self.block_config, "memory", dtype=self.torch_dtype, quant_type=self.quant_type)
         total_memory_per_block = block_size + self._cache_bytes_per_block
         if self.adapters:
-            # Delay import of petals.utils.peft to avoid unnecessary import of bitsandbytes
+            # Delay import of peerz.utils.peft to avoid unnecessary import of bitsandbytes
             from peerz.utils.peft import estimate_adapter_memory_per_block
 
             total_memory_per_block += estimate_adapter_memory_per_block(

@@ -31,7 +31,7 @@ async def check_reachability(peer_id, _, node, *, fetch_info=False, connect_time
         if not isinstance(e, asyncio.TimeoutError):
             message = str(e) if str(e) else repr(e)
             if message == "protocol not supported":
-                # This may be returned when a server is joining, see https://github.com/peerz-infra/health.peerz.dev/issues/1
+                # This may be returned when a server is joining the DHT and has not yet started the p2p server
                 return {"ok": True}
         else:
             message = f"Failed to connect in {connect_timeout:.0f} sec. Firewall may be blocking connections"

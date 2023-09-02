@@ -77,7 +77,7 @@ def load_peft(
     max_disk_space: Optional[int] = None,
     delay: float = 30,
 ):
-    # TODO: Check is it possible to add safetensors loading inside petals/server/from_pretrained.py and reuse it here
+    # TODO: Check is it possible to add safetensors loading inside peerz/server/from_pretrained.py and reuse it here
 
     if not check_peft_repository(repo_id):
         raise ValueError(f"Repo: {repo_id} doesn't have safetensors inside for a safe loading.")
@@ -216,7 +216,7 @@ def create_lora_adapter(block, quant_type: QuantType):
 
 
 def add_adapter_to_block(block, block_index, adapter_name, peft_config, peft_state_dict):
-    assert peft_config["peft_type"] == "LORA", "Petals works only with LORA adapters"
+    assert peft_config["peft_type"] == "LORA", "peerz works only with LORA adapters"
     if peft_config["lora_dropout"] > 0:
         logger.info(f"Adapter {adapter_name} has dropout enabled, this server will disable dropout")
 

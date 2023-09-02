@@ -53,7 +53,7 @@ class _AutoDistributedBase:
 
 class DefaultRevisionMixin:
     """
-    Petals only supports Falcon loaded in the new in-library format (transformers.FalconModel).
+    supports Falcon loaded in the new in-library format (transformers.FalconModel).
     TII models were recently converted to this format but then reverted back due to compatibility issues.
     We chose to support only the new format since HF staff promised to eventually convert these models
     to the new format again, see https://huggingface.co/tiiuae/falcon-40b/discussions/90#64b4d23bf44fd957492f7602

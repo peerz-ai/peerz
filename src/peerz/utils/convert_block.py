@@ -34,7 +34,7 @@ def convert_block(
     **kwargs,
 ) -> tp.TensorParallel:
     """
-    Optimize a transformer block for use in a Petals server, apply tensor parallelism and/or LLM.8bit quantization
+    Optimize a transformer block for use in a peerz server, apply tensor parallelism and/or LLM.8bit quantization
 
     :note: some optimizations will modify the input block in-place!
     :param block: a single transformer block, either pre-trained or newly initialized
@@ -74,7 +74,7 @@ def convert_block(
 
 
 def quantize_module(model: nn.Module, *, quant_type: QuantType) -> nn.Module:
-    # Import bitsandbytes only when necessary, so Petals runs on platforms not supported by bitsandbytes
+    # Import bitsandbytes only when necessary, so peerz runs on platforms not supported by bitsandbytes
     import bitsandbytes as bnb
 
     for n, module in model.named_children():

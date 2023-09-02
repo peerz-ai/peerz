@@ -28,17 +28,3 @@ def validate_version() -> None:
             )
     except Exception as e:
         logger.warning("Failed to fetch the latest Peerz version from PyPI:", exc_info=True)
-
-
-def get_compatible_model_repo(model_name_or_path: Union[str, os.PathLike, None]) -> Union[str, os.PathLike, None]:
-    if model_name_or_path is None:
-        return None
-
-    match = re.fullmatch(r"(bigscience/.+)-petals", str(model_name_or_path))
-    if match is None:
-        return model_name_or_path
-
-    logger.info(
-        f"Loading model from {match.group(1)}, since Petals 1.2.0+ uses original repos instead of converted ones"
-    )
-    return match.group(1)

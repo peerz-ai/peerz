@@ -47,9 +47,9 @@ jobs:
           export REF_NAME="${{ matrix.model }}"
           export ADAPTER_NAME="${{ matrix.model == 'bigscience/bloom-560m' && 'artek0chumak/bloom-560m-safe-peft' || '' }}"
 
-          # [Step 1] Set up a tiny test swarm (see https://github.com/bigscience-workshop/petals/wiki/Launch-your-own-swarm)
+          # [Step 1] Set up a tiny test swarm
 
-          python -m petals.cli.run_dht \
+          python -m peerz.cli.run_dht \
             --identity_path tests/bootstrap.id --host_maddrs /ip4/127.0.0.1/tcp/31337 &> bootstrap.log &
           BOOTSTRAP_PID=$!
 
@@ -58,7 +58,7 @@ jobs:
 
           until [ -s bootstrap.log ]; do sleep 5; done  # wait for DHT init
 
-          export RUN_SERVER="python -m petals.cli.run_server $MODEL_NAME \
+          export RUN_SERVER="python -m peerz.cli.run_server $MODEL_NAME \
             --device cpu --torch_dtype float32 --initial_peers $INITIAL_PEERS"
           export TENSOR_PARALLEL_ARGS="${{ matrix.model == 'bigscience/bloom-560m' && '--tensor_parallel_devices cpu cpu' || '' }}"
 
@@ -90,15 +90,15 @@ jobs:
 
           # [Step 2] Run PyTest
 
-          # Share disk cache between Petals servers, clients, and HF Transformers
-          export TRANSFORMERS_CACHE=~/.cache/petals
+          # Share disk cache between peerz servers, clients, and HF Transformers
+          export TRANSFORMERS_CACHE=~/.cache/peerz
 
           # Necessary for @pytest.mark.forked to work properly on macOS, see https://github.com/kevlened/pytest-parallel/issues/93
           export no_proxy=*
           export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
 
           # Limit default ClientConfig.max_retries to see tracebacks instead of retrying indefinitely
-          export PETALS_MAX_RETRIES=10
+          export PEERZ_MAX_RETRIES=10
 
           pytest tests --durations=0 --durations-min=1.0 -v
 

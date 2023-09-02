@@ -9,8 +9,6 @@ from typing import List, Optional, Tuple, Union
 from hivemind.utils.logging import get_logger
 from transformers import BloomPreTrainedModel, modeling_utils
 
-from peerz.utils.version import get_compatible_model_repo
-
 logger = get_logger(__name__)
 
 
@@ -23,7 +21,6 @@ class FromPretrainedMixin:
         low_cpu_mem_usage: Optional[bool] = None,
         **kwargs,
     ):
-        model_name_or_path = get_compatible_model_repo(model_name_or_path)
         if low_cpu_mem_usage is None:
             low_cpu_mem_usage = True
 

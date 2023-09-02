@@ -64,7 +64,7 @@ async def run_rpc_forward(
         if not is_dummy(prompt):
             hidden_states[:, : prompt.shape[1]] += prompt
 
-        assert isinstance(backend.inference_pool, PrioritizedTaskPool), "petals support only prioritized pools"
+        assert isinstance(backend.inference_pool, PrioritizedTaskPool), "peerz support only prioritized pools"
         priority = prioritizer.prioritize(
             hidden_states, points=points / len(requested_backends), backend=backend, type="forward"
         )
@@ -111,7 +111,7 @@ async def run_rpc_backward(
         if not is_dummy(prompt):
             inputs[:, : prompt.shape[1]] += prompt
         inter_inputs.append(inputs)
-        assert isinstance(backend.inference_pool, PrioritizedTaskPool), "petals support only prioritized pools"
+        assert isinstance(backend.inference_pool, PrioritizedTaskPool), "peerz support only prioritized pools"
         priority = prioritizer.prioritize(
             inputs, points=points / len(requested_backends), backend=backend, type="forward_in_backward"
         )
@@ -127,7 +127,7 @@ async def run_rpc_backward(
     grad_prompts_reversed = []
     # Run a chain of requested backends
     for inp, prompt, backend in zip(*map(reversed, (inter_inputs, prompts, requested_backends))):
-        assert isinstance(backend.inference_pool, PrioritizedTaskPool), "petals support only prioritized pools"
+        assert isinstance(backend.inference_pool, PrioritizedTaskPool), "peerz support only prioritized pools"
         priority = prioritizer.prioritize(
             inp, grad_outputs, points=points / len(requested_backends), backend=backend, type="backward"
         )

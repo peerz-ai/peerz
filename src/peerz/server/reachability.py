@@ -28,7 +28,7 @@ def validate_reachability(peer_id, wait_time: float = 7 * 60, retry_delay: float
             response = r.json()
 
             if response["success"]:
-                logger.info("Server is reachable from the Internet. It will appear at https://health.petals.dev soon")
+                logger.info("Server is reachable from the Internet. It will appear at the health dashboard soon")
                 return
 
             if attempt_no == 0:
@@ -37,17 +37,17 @@ def validate_reachability(peer_id, wait_time: float = 7 * 60, retry_delay: float
                 logger.info("Detected a NAT or a firewall, connecting to libp2p relays. This takes a few minutes")
             time.sleep(retry_delay)
         except Exception as e:
-            logger.warning(f"Skipping reachability check because health.petals.dev is down: {repr(e)}")
+            logger.warning(f"Skipping reachability check because the health dashboard is down: {repr(e)}")
             return
 
     raise RuntimeError(
         f"Server has not become reachable from the Internet:\n\n"
         f"{response['message']}\n\n"
         f"You need to fix your port forwarding and/or firewall settings. How to do that:\n\n"
-        f"    1. Choose a specific port for the Petals server, for example, 31337.\n"
+        f"    1. Choose a specific port for the peerz server, for example, 31337.\n"
         f"    2. Ensure that this port is accessible from the Internet and not blocked by your firewall.\n"
         f"    3. Add these arguments to explicitly announce your IP address and port to other peers:\n"
-        f"        python -m petals.cli.run_server ... --public_ip {response['your_ip']} --port 31337\n"
+        f"        peerz server ... --public_ip {response['your_ip']} --port 31337\n"
         f"    4. If it does not help, ask for help in our Discord: https://discord.gg/Wuk8BnrEPH\n"
     )
 

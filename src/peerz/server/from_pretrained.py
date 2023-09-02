@@ -138,7 +138,7 @@ INDEX_FILES = ["model.safetensors.index.json", "model.safetensors", "pytorch_mod
 def _find_index_file(
     model_name: str, *, revision: Optional[str] = None, token: Optional[Union[str, bool]] = None, cache_dir: str
 ) -> str:
-    # If we have cached weights (e.g., Pickle from older Petals versions), reuse them
+    # If we have cached weights (e.g., Pickle from older peerz versions), reuse them
     for filename in INDEX_FILES:
         path = get_file_from_repo(
             model_name,

@@ -28,8 +28,7 @@ class DistributedBloomConfig(BloomConfig, ClientConfig, PTuneConfig, LMHeadConfi
 
         loading_from_repo = model_name_or_path is not None and not os.path.isdir(model_name_or_path)
         if loading_from_repo and dht_prefix is None:
-            # We need "-petals" for backward compatibility with Petals < 1.2.0
-            dht_prefix = str(model_name_or_path) + "-petals"
+            dht_prefix = str(model_name_or_path) + "-peerz"
             dht_prefix = dht_prefix.replace(".", "-")
             logger.info(f"Using DHT prefix: {dht_prefix}")
         return super().from_pretrained(model_name_or_path, *args, dht_prefix=dht_prefix, **kwargs)
