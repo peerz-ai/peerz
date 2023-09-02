@@ -5,9 +5,9 @@ import pytest
 import torch
 from hivemind import DHT, get_logger
 
-from petals import AutoDistributedConfig
-from petals.client import RemoteSequenceManager, RemoteSequential
-from petals.data_structures import UID_DELIMITER
+from peerz import AutoDistributedConfig
+from peerz.client import RemoteSequenceManager, RemoteSequential
+from peerz.data_structures import UID_DELIMITER
 from test_utils import *
 
 logger = get_logger(__name__)

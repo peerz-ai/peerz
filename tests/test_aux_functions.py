@@ -5,11 +5,11 @@ import pytest
 import torch
 from hivemind import nested_compare, nested_flatten
 
-from petals import AutoDistributedConfig
-from petals.server.throughput import measure_compute_rps
-from petals.utils.convert_block import QuantType
-from petals.utils.misc import DUMMY, is_dummy
-from petals.utils.packaging import pack_args_kwargs, unpack_args_kwargs
+from peerz import AutoDistributedConfig
+from peerz.server.throughput import measure_compute_rps
+from peerz.utils.convert_block import QuantType
+from peerz.utils.misc import DUMMY, is_dummy
+from peerz.utils.packaging import pack_args_kwargs, unpack_args_kwargs
 from test_utils import MODEL_NAME
 
 

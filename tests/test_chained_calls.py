@@ -7,9 +7,9 @@
 import pytest
 import torch
 
-from petals import AutoDistributedConfig
-from petals.client.remote_sequential import RemoteSequential
-from petals.server.from_pretrained import load_pretrained_block
+from peerz import AutoDistributedConfig
+from peerz.client.remote_sequential import RemoteSequential
+from peerz.server.from_pretrained import load_pretrained_block
 from test_utils import *
 
 
