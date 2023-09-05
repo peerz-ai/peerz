@@ -2,7 +2,7 @@
 A copy of run_dht.py from hivemind with the ReachabilityProtocol added:
 https://github.com/learning-at-home/hivemind/blob/master/hivemind/hivemind_cli/run_dht.py
 
-This script may be used for launching lightweight CPU machines serving as bootstrap nodes to a Petals swarm.
+This script may be used for launching lightweight CPU machines serving as bootstrap nodes to a Peerz swarm.
 
 This may be eventually merged to the hivemind upstream.
 """
@@ -15,7 +15,7 @@ from hivemind.dht import DHT, DHTNode
 from hivemind.utils.logging import get_logger, use_hivemind_log_handler
 from hivemind.utils.networking import log_visible_maddrs
 
-from petals.server.reachability import ReachabilityProtocol
+from peerz.server.reachability import ReachabilityProtocol
 
 use_hivemind_log_handler("in_root_logger")
 logger = get_logger(__name__)

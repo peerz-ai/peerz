@@ -8,10 +8,10 @@ from hivemind.utils import limits
 from hivemind.utils.logging import get_logger
 from humanfriendly import parse_size
 
-from petals.constants import DTYPE_MAP, PUBLIC_INITIAL_PEERS
-from petals.server.server import Server
-from petals.utils.convert_block import QuantType
-from petals.utils.version import validate_version
+from peerz.constants import DTYPE_MAP, PUBLIC_INITIAL_PEERS
+from peerz.server.server import Server
+from peerz.utils.convert_block import QuantType
+from peerz.utils.version import validate_version
 
 logger = get_logger(__name__)
 
@@ -87,7 +87,7 @@ def main():
     parser.add_argument("--max_disk_space", type=str, default=None,
                         help="Maximal disk space used for caches. Example: 50GB, 100GiB (GB != GiB here). "
                              "Default: unlimited. "
-                             "For bigscience/bloom-petals, this default means that the server may use up to "
+                             "For bigscience/bloom-peerz, this default means that the server may use up to "
                              "min(free_disk_space, 350GB) in the worst case, which happens when the server runs "
                              "for a long time and caches all model blocks after a number of rebalancings. "
                              "However, this worst case is unlikely, expect the server to consume "
@@ -157,7 +157,7 @@ def main():
                         "weight matrix. See https://huggingface.co/transformers/v4.9.0/parallelism.html#tensor-parallelism")
 
     parser.add_argument("--skip_reachability_check", action='store_true',
-                        help="Skip checking this server's reachability via health.petals.dev "
+                        help="Skip checking this server's reachability via health.peerz.dev "
                              "when connecting to the public swarm. If you connect to a private swarm, "
                              "the check is skipped by default. Use this option only if you know what you are doing")
 
