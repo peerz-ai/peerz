@@ -11,6 +11,7 @@ class Inference:
     ):
         self.question = question
     def run(self):
+        print(PUBLIC_INITIAL_PEERS)
         model_name = "bigscience/bloom-560m"  # This one is fine-tuned Llama 2 (70B)
         stop_sequence = "###"
         starting_text = "A chat between a curious human and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions."

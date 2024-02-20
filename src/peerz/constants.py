@@ -2,7 +2,7 @@ import torch
 
 PUBLIC_INITIAL_PEERS = [
     # IPv4 DNS addresses
-    "/ip4/127.0.0.1/tcp/58378/p2p/12D3KooWQrcDwFAhRwSDrZpuspKmu63iy5FzWEoEdM1gZdMdHzCd"
+    "/ip4/127.0.0.1/tcp/52474/p2p/12D3KooWSTvDow9otbBFuBxE9bRz4LuU3sNB7TAm6rPQLydBLqyD"
 ]
 
 # The reachability API is currently used only when connecting to the public swarm
