@@ -15,11 +15,8 @@ from peerz.utils.version import validate_version
 
 logger = get_logger(__name__)
 
-
-def main():
+def args(parser: configargparse.ArgParser):
     # fmt:off
-    parser = configargparse.ArgParser(default_config_files=["config.yml"],
-                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add('-c', '--config', required=False, is_config_file=True, help='config file path')
 
     group = parser.add_mutually_exclusive_group(required=True)
@@ -87,7 +84,7 @@ def main():
     parser.add_argument("--max_disk_space", type=str, default=None,
                         help="Maximal disk space used for caches. Example: 50GB, 100GiB (GB != GiB here). "
                              "Default: unlimited. "
-                             "For bigscience/bloom-peerz, this default means that the server may use up to "
+                             "For bigscience/bloom-petals, this default means that the server may use up to "
                              "min(free_disk_space, 350GB) in the worst case, which happens when the server runs "
                              "for a long time and caches all model blocks after a number of rebalancings. "
                              "However, this worst case is unlikely, expect the server to consume "
@@ -157,15 +154,18 @@ def main():
                         "weight matrix. See https://huggingface.co/transformers/v4.9.0/parallelism.html#tensor-parallelism")
 
     parser.add_argument("--skip_reachability_check", action='store_true',
-                        help="Skip checking this server's reachability via health.peerz.dev "
+                        help="Skip checking this server's reachability via health.petals.dev "
                              "when connecting to the public swarm. If you connect to a private swarm, "
                              "the check is skipped by default. Use this option only if you know what you are doing")
 
     parser.add_argument("--adapters", nargs='*', default=(),
                         help="List of pre-loaded LoRA adapters that can be used for inference or training")
 
+
+def main(args: argparse.Namespace):
     # fmt:on
-    args = vars(parser.parse_args())
+    args = vars(args)
+    args.pop("type", None)
     args.pop("config", None)
 
     args["converted_model_name_or_path"] = args.pop("model") or args["converted_model_name_or_path"]
@@ -232,4 +232,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    parser = configargparse.ArgParser(default_config_files=["config.yml"],
+                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    args(parser)
+    main(parser.parse_args())

@@ -1,12 +1,3 @@
-"""
-A copy of run_dht.py from hivemind with the ReachabilityProtocol added:
-https://github.com/learning-at-home/hivemind/blob/master/hivemind/hivemind_cli/run_dht.py
-
-This script may be used for launching lightweight CPU machines serving as bootstrap nodes to a Peerz swarm.
-
-This may be eventually merged to the hivemind upstream.
-"""
-
 import argparse
 import time
 from secrets import token_hex
@@ -34,8 +25,7 @@ async def report_status(dht: DHT, node: DHTNode):
     await node.get(f"heartbeat_{token_hex(16)}", latest=True)
 
 
-def main():
-    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+def args(parser: argparse.ArgumentParser):
     parser.add_argument(
         "--initial_peers",
         nargs="*",
@@ -81,8 +71,9 @@ def main():
         "--refresh_period", type=int, default=30, help="Period (in seconds) for fetching the keys from DHT"
     )
 
-    args = parser.parse_args()
+    return parser
 
+def main(args: argparse.Namespace):
     dht = DHT(
         start=True,
         initial_peers=args.initial_peers,
@@ -100,7 +91,8 @@ def main():
     while True:
         dht.run_coroutine(report_status, return_future=False)
         time.sleep(args.refresh_period)
-
-
+        
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    args(parser)
+    main(parser.parse_args())
