@@ -18,7 +18,7 @@ class _ModelClasses:
     model_for_sequence_classification: Optional[Type[PreTrainedModel]] = None
 
 
-_CLASS_MAPPING = {}  # Populated by petals.models.* subpackages with register_model_classes()
+_CLASS_MAPPING = {}  # Populated by peerz.models.* subpackages with register_model_classes()
 
 
 def register_model_classes(*, config: Type[PretrainedConfig], **kwargs):
@@ -42,11 +42,11 @@ class _AutoDistributedBase:
 
         config = AutoConfig.from_pretrained(model_name_or_path, *args, **kwargs)
         if config.model_type not in _CLASS_MAPPING:
-            raise ValueError(f"Petals does not support model type {config.model_type}")
+            raise ValueError(f"peerz does not support model type {config.model_type}")
 
         proper_cls = getattr(_CLASS_MAPPING[config.model_type], cls._mapping_field)
         if proper_cls is None:
-            raise ValueError(f"Petals does not have {cls.__name__} for model type {config.model_type}")
+            raise ValueError(f"peerz does not have {cls.__name__} for model type {config.model_type}")
 
         return proper_cls.from_pretrained(model_name_or_path, *args, **kwargs)
 

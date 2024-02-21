@@ -10,7 +10,7 @@ from hivemind.utils.logging import get_logger
 
 logger = get_logger(__name__)
 
-DEFAULT_CACHE_DIR = os.getenv("PETALS_CACHE", Path(Path.home(), ".cache", "petals"))
+DEFAULT_CACHE_DIR = os.getenv("PEERZ_CACHE", Path(Path.home(), ".cache", "peerz"))
 
 BLOCKS_LOCK_FILE = "blocks.lock"
 
