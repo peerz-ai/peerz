@@ -1,21 +1,8 @@
-"""
-A copy of run_dht.py from hivemind with the ReachabilityProtocol added:
-https://github.com/learning-at-home/hivemind/blob/master/hivemind/hivemind_cli/run_dht.py
-
-This script may be used for launching lightweight CPU machines serving as bootstrap nodes to a Peerz swarm.
-
-This may be eventually merged to the hivemind upstream.
-"""
-
 import argparse
-import time
-from secrets import token_hex
 
 from peerz.validator.validator import Validator
 
-
-def main():
-    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+def args(parser: argparse.ArgumentParser):
     parser.add_argument(
         "--initial_peers",
         nargs="*",
@@ -30,9 +17,9 @@ def main():
         "--private_key",
         help="private key of the validator",
     )
-
-    args = parser.parse_args()
-
+    return parser
+    
+def main(args: argparse.Namespace):
     validator = Validator(
         initial_peers=args.initial_peers,
         address=args.address,
@@ -42,4 +29,6 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    args(parser)
+    main(parser.parse_args())

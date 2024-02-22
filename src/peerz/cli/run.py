@@ -3,6 +3,7 @@ import configargparse
 import sys
 from peerz.cli.run_dht import args as dht_args, main as run_dht
 from peerz.cli.run_server import args as server_args, main as run_server
+from peerz.cli.run_validator import args as validator_args, main as run_validator
 
 def main():
     parser = configargparse.ArgParser(default_config_files=["config.yml"],
@@ -16,6 +17,7 @@ def main():
 
     dht_args(dht_parser)
     server_args(server_parser)
+    validator_args(validator_parser)
 
     if not sys.argv[1:] or sys.argv[1] in ('-h', '--help'):
         parser.print_help(sys.stderr)
@@ -30,5 +32,5 @@ def main():
             case "server":
                 run_server(args)
             case "validator":
-                print("validator:", args.type)
+                run_validator(args)
 
