@@ -27,7 +27,7 @@ The peerz project facilitates distributed computing through a decentralized netw
 The server component hosts and serves computations. To start the server, use the `run_server` script.
 
 ```bash
-python -m peerz.cli.run_server --converted_model_name_or_path <MODEL_PATH> --port <PORT> [--other_options]
+python -m peerz server --converted_model_name_or_path <MODEL_PATH> --port <PORT> [--other_options]
 ```
 
 - `<MODEL_PATH>`: Path or name of the pretrained model.
@@ -38,7 +38,7 @@ python -m peerz.cli.run_server --converted_model_name_or_path <MODEL_PATH> --por
 Validators validate transactions within the network. To start a validator, use the `run_validator` script.
 
 ```bash
-python -m peerz.cli.run_validator --initial_peers <PEER_ADDRESSES> --address <VALIDATOR_ADDRESS> --private_key <PRIVATE_KEY>
+python -m peerz validator --initial_peers <PEER_ADDRESSES> --address <VALIDATOR_ADDRESS> --private_key <PRIVATE_KEY>
 ```
 
 - `<PEER_ADDRESSES>`: Multiaddrs of initial peers in the DHT.
@@ -50,7 +50,7 @@ python -m peerz.cli.run_validator --initial_peers <PEER_ADDRESSES> --address <VA
 Sequencers sequence transactions to maintain order and consistency. To start a sequencer, use the `run_sequencer` script.
 
 ```bash
-python -m peerz.cli.run_sequencer --initial_peers <PEER_ADDRESSES> --address <SEQUENCER_ADDRESS> --private_key <PRIVATE_KEY>
+python -m peerz sequencer --initial_peers <PEER_ADDRESSES> --address <SEQUENCER_ADDRESS> --private_key <PRIVATE_KEY>
 ```
 
 - `<PEER_ADDRESSES>`: Multiaddrs of initial peers in the DHT.
@@ -62,7 +62,7 @@ python -m peerz.cli.run_sequencer --initial_peers <PEER_ADDRESSES> --address <SE
 Each component can be further configured through command-line arguments or a configuration file (`config.yml`). See the help (`-h`) option for each script for more details.
 
 ```bash
-python -m peerz.cli.run_server -h
-python -m peerz.cli.run_validator -h
-python -m peerz.cli.run_sequencer -h
+python -m peerz server -h
+python -m peerz validator -h
+python -m peerz sequencer -h
 ```
