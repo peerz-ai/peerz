@@ -12,10 +12,12 @@ def args(parser: argparse.ArgumentParser):
     parser.add_argument(
         "--address",
         help="address of the validator",
+        required=True,
     )
     parser.add_argument(
         "--private_key",
         help="private key of the validator",
+        required=True,
     )
     return parser
     

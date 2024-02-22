@@ -1,15 +1,4 @@
-"""
-A copy of run_dht.py from hivemind with the ReachabilityProtocol added:
-https://github.com/learning-at-home/hivemind/blob/master/hivemind/hivemind_cli/run_dht.py
-
-This script may be used for launching lightweight CPU machines serving as bootstrap nodes to a Peerz swarm.
-
-This may be eventually merged to the hivemind upstream.
-"""
-
 import argparse
-import time
-from secrets import token_hex
 
 from peerz.inference.inference import Inference
 

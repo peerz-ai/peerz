@@ -10,9 +10,6 @@ from web3 import Web3
 
 logger = hivemind.get_logger(__name__)
 
-private_key = "---"
-
-
 # Get the directory of the current script
 script_dir = os.path.dirname(__file__)
 
@@ -40,6 +37,7 @@ class Sequencer:
         *,
         initial_peers: List[str],
         address: str,
+        private_key: str,
         check_period: float = 60,
     ):
         logger.info("Connecting to DHT")
@@ -47,6 +45,7 @@ class Sequencer:
         self.initial_peers = initial_peers
         self.updater = None
         self.address = address
+        self.private_key = private_key
         self.stop = threading.Event()
     def run(self):
         while True:
@@ -87,7 +86,7 @@ class Sequencer:
                     'from': self.address  # This line is not necessary for buildTransaction and can be omitted
                 }
 
-                signed_tx = w3.eth.account.sign_transaction(tx, private_key=private_key)
+                signed_tx = w3.eth.account.sign_transaction(tx, private_key=self.private_key)
 
                 # Send transaction
                 tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
