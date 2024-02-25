@@ -1,4 +1,5 @@
 from transformers import AutoTokenizer
+from typing import List
 from peerz import AutoDistributedModelForCausalLM
 from peerz.constants import PUBLIC_INITIAL_PEERS
 import sys
@@ -8,10 +9,11 @@ class Inference:
         self,
         *,
         question: str,
+        initial_peers: List[str],
     ):
+        self.initial_peers = initial_peers
         self.question = question
     def run(self):
-        print(PUBLIC_INITIAL_PEERS)
         model_name = "bigscience/bloom-560m"  # This one is fine-tuned Llama 2 (70B)
         stop_sequence = "###"
         starting_text = "A chat between a curious human and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions."
@@ -20,7 +22,7 @@ class Inference:
 
         # Connect to a distributed network hosting model layers
         tokenizer = AutoTokenizer.from_pretrained(model_name)
-        model = AutoDistributedModelForCausalLM.from_pretrained(model_name)
+        model = AutoDistributedModelForCausalLM.from_pretrained(model_name, initial_peers=self.initial_peers)
 
         with model.inference_session(max_length=100) as session:
             # Run the model as if it were on your computer

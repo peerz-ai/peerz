@@ -2,9 +2,7 @@ import argparse
 
 from peerz.inference.inference import Inference
 
-
-def main():
-    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+def args(parser: argparse.ArgumentParser):
     parser.add_argument(
         "--initial_peers",
         nargs="*",
@@ -16,13 +14,17 @@ def main():
         help="question for inference",
     )
 
-    args = parser.parse_args()
-
+    return parser
+    
+def main(args: argparse.Namespace):
     inference = Inference(
+        initial_peers=args.initial_peers,
         question=args.question
     )
     inference.run()
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    args(parser)
+    main(parser.parse_args())
