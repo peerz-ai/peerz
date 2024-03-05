@@ -1,38 +1,12 @@
-from functools import partial
-
-import json
-from ecdsa import SigningKey, SECP256k1
-from web3 import Web3
-from eth_account.messages import encode_defunct, _hash_eip191_message
-import binascii
 from hivemind import DHT, get_dht_time, get_logger
 import time
 import threading
-import hashlib
 from typing import List
+from peerz.utils.signature import prepare_data_for_signing, sign_data
 
 from peerz.validator.state_updater import StateUpdaterThread
 
 logger = get_logger(__name__)
-
-def prepare_data_for_signing(state):
-    peerIds = [Web3.solidity_keccak(['string'], [str(item['peer_id'])]).hex() for item in state]
-    throughputs = [item['throughput'] for item in state]
-    layers = [item['layers'] for item in state]
-    return peerIds, throughputs, layers
-
-def sign_data(private_key, peerIds, throughputs, layers):
-    w3 = Web3(Web3.HTTPProvider('http://127.0.0.1:8545/'))
-    private_key_bytes = binascii.unhexlify(private_key[2:])
-    
-    # Hash the encoded data using keccak
-    hashed_data = Web3.solidity_keccak(['bytes32[]', 'uint256[]', 'uint256[]'], [peerIds, throughputs, layers])
-    message = encode_defunct(hexstr=hashed_data.hex())
-
-    # Sign the hash of the encoded data
-    signed_message = w3.eth.account.sign_message(message, private_key=private_key_bytes)
-    return signed_message.signature.hex()
-
 
 class Validator:
     def __init__(
