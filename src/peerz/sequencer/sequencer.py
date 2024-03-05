@@ -7,6 +7,7 @@ import threading
 from typing import List
 import json
 from web3 import Web3
+from peerz.constants import PROTOCOL_ADDRESS, RPC_URL
 
 logger = hivemind.get_logger(__name__)
 
@@ -22,10 +23,10 @@ with open(abi_file_path, 'r') as abi_file:
     contract_abi = json.load(abi_file)
 
 # Setup Web3 connection (example with a local Ethereum node)
-w3 = Web3(Web3.HTTPProvider('http://127.0.0.1:8545/'))
+w3 = Web3(Web3.HTTPProvider(RPC_URL))
 
 # Assuming you have the contract's address
-contract_address = '0xa513E6E4b8f2a923D98304ec87F64353C4D5C853'
+contract_address = PROTOCOL_ADDRESS
 
 # Create the contract instance
 contract = w3.eth.contract(address=contract_address, abi=contract_abi)
