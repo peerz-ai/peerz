@@ -66,3 +66,30 @@ peerz server -h
 peerz validator -h
 peerz sequencer -h
 ```
+
+
+<pre align="center">
+                 .-^>>+~`                  
+              -vkppqppppppw^               
+            `xppx>-....`|?Kpp+             
+           +ppx-          .+kpw            
+          ~ppr    .|>>~     `upr           
+          xpq.   ^qppppq|    |pp-          
+         .ppw   .rppppppp    `kp?          
+         .ppr    +rKpppppx+.  ?p?          
+         .ppr    .-+???^?Kppu?...          
+         .ppr             `?uppK?-         
+     -vk|.ppr                `>zppp}~      
+   +Kppq-.ppr                   .^rqpq?.   
+ .zppv`  .ppr                      .^xpq~  
+.upq~    .ppw                 ..      ?pp| 
+?pp+   .?qpppu~            .vppppz`    ?pp.
+upq    ?ppppppp`           ?ppppppp.   -pp^
+upq    >ypppppp~         .^rppppppp`   `kp>
+?pp^   .^vxKKx^       `>uppw?}xKky+    ?pp`
+.upp|     ...      -?kppq}|. ..`.     >ppv 
+ .wppw-         ~}qppkv~``          |xppv  
+   +ypppw?>+>vxpppy?-  >kppz?^~~^?zpppu|   
+     -?uqpppppkw>`     .`>wppppppppu?-     
+         .....              .`--`.         
+</pre>
