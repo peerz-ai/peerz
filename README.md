@@ -1,65 +1,75 @@
 # peerz
 
-The peerz project facilitates distributed computing through a decentralized network, leveraging hivemind for peer discovery and communication. This project contains three main components:
+The peerz project enables efficient, distributed computing over a decentralized network, leveraging hivemind for peer discovery and communication. It consists of three main components:
 
 - **Server**: Hosts and serves model computations.
 - **Validator**: Validates servers and updates within the network.
-- **Sequencer**: Sequences transactions to ensure consistency and order.
+- **Sequencer**: Ensures transaction consistency and order.
 
 ## Getting Started
 
 ### Prerequisites
 
-- Python 3.7 or higher
-- PyTorch
-- hivemind
+- Python 3.8 or higher
 
 ### Installation
 
-1. Clone this repository.
-2. Install required dependencies:
+#### Automated Installation
+
+You can install peerz directly using our installation script from GitHub. This method doesn't require manually cloning the repo:
+
+```bash
+curl -o- https://raw.githubusercontent.com/peerz-ai/peerz/main/scripts/install.sh | bash
+```
+
+This command downloads the `install.sh` script and executes it. The script sets up a Python virtual environment, installs necessary dependencies, and prepares peerz for use.
+
+#### Manual Installation
+
+If you prefer manual installation or need more control over the installation process, follow these steps:
+
+1. **Clone the Repository**:
     ```bash
-    pip install -r requirements.txt
+    git clone https://github.com/peerz-ai/peerz.git
+    cd peerz
     ```
 
-## Running the Server
+2. **Set Up a Python Virtual Environment** (Optional, but recommended):
+    ```bash
+    python3 -m venv .venv
+    source .venv/bin/activate
+    ```
 
-The server component hosts and serves computations. To start the server, use the `run_server` script.
+4. **Install peerz**:
+    ```bash
+    pip install -e .
+    ```
+
+### Running peerz
+
+After installation, you can start the Server, Validator, or Sequencer components using their respective scripts as described below. Ensure you activate the virtual environment if you set one up during manual installation.
+
+## Running the Server
 
 ```bash
 peerz server --converted_model_name_or_path <MODEL_PATH> --port <PORT> [--other_options]
 ```
 
-- `<MODEL_PATH>`: Path or name of the pretrained model.
-- `<PORT>`: Port number for the server to listen on.
-
 ## Running the Validator
-
-Validators validate transactions within the network. To start a validator, use the `run_validator` script.
 
 ```bash
 peerz validator --initial_peers <PEER_ADDRESSES> --address <VALIDATOR_ADDRESS> --private_key <PRIVATE_KEY>
 ```
 
-- `<PEER_ADDRESSES>`: Multiaddrs of initial peers in the DHT.
-- `<VALIDATOR_ADDRESS>`: Address of the validator.
-- `<PRIVATE_KEY>`: Private key of the validator.
-
 ## Running the Sequencer
-
-Sequencers sequence transactions to maintain order and consistency. To start a sequencer, use the `run_sequencer` script.
 
 ```bash
 peerz sequencer --initial_peers <PEER_ADDRESSES> --address <SEQUENCER_ADDRESS> --private_key <PRIVATE_KEY>
 ```
 
-- `<PEER_ADDRESSES>`: Multiaddrs of initial peers in the DHT.
-- `<SEQUENCER_ADDRESS>`: Address of the sequencer.
-- `<PRIVATE_KEY>`: Private key of the sequencer.
-
 ## Configuration
 
-Each component can be further configured through command-line arguments or a configuration file (`config.yml`). See the help (`-h`) option for each script for more details.
+For further customization, each component supports additional command-line arguments and can be configured via `config.yml`. Use the `-h` option for detailed usage instructions:
 
 ```bash
 peerz server -h
