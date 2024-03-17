@@ -223,6 +223,24 @@ def main(args: argparse.Namespace):
         compression=compression,
         max_disk_space=max_disk_space,
     )
+
+    logger.info(f"")
+    logger.info(f"")
+    logger.info(f"")
+    logger.info(f"========================= Peerz ID =======================")
+    logger.info(f"")
+    logger.info(f"   {server.dht.peer_id}   ")
+    logger.info(f"")
+    logger.info(f"     Please copy the peer id and register your server     ")
+    logger.info(f"         follow the docs at https://peerz.ai/docs         ")
+    logger.info(f"")
+    logger.info(f"==========================================================")
+    logger.info(f"")
+    logger.info(f"")
+    logger.info(f"")
+    
+    input("press any key to continue...")
+
     try:
         server.run()
     except KeyboardInterrupt:
