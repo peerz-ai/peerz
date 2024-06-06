@@ -14,7 +14,7 @@ class Inference:
         self.initial_peers = initial_peers
         self.question = question
     def run(self):
-        model_name = "bigscience/bloom-560m"  # This one is fine-tuned Llama 2 (70B)
+        model_name = "v2ray/Llama-3-70B"  # This one is fine-tuned Llama 2 (70B)
         stop_sequence = "###"
         starting_text = "A chat between a curious human and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions."
         starting_text += stop_sequence + "Assistant: Hi! How can I help you?"
@@ -24,7 +24,7 @@ class Inference:
         tokenizer = AutoTokenizer.from_pretrained(model_name)
         model = AutoDistributedModelForCausalLM.from_pretrained(model_name, initial_peers=self.initial_peers)
 
-        with model.inference_session(max_length=100) as session:
+        """ with model.inference_session(max_length=100) as session:
             # Run the model as if it were on your computer
             input_text = starting_text + self.question + stop_sequence + "Assistant:"
             final_output = ""
@@ -34,8 +34,9 @@ class Inference:
                 outputs = model.generate(
                     inputs,
                     max_new_tokens=1,
-                    # max_length=100,
-                    session=session
+                    max_length=100,
+                    session=session,
+                    pad_token_id=tokenizer.eos_token_id,
                 )
                 inputs = None
                 output = tokenizer.decode(outputs[0])
@@ -47,7 +48,7 @@ class Inference:
                     stop = True
                 final_output += output
             #print(final_output)
-            #sys.stdout.write(final_output)
-        """ inputs = tokenizer(input_text, return_tensors="pt")["input_ids"]
+            #sys.stdout.write(final_output) """
+        inputs = tokenizer("A cat sat on a mat...", return_tensors="pt")["input_ids"]
         outputs = model.generate(inputs, max_new_tokens=1)
-        print(tokenizer.decode(outputs[0]))  # A cat sat on a mat... """
+        print(tokenizer.decode(outputs[0]))  # A cat sat on a mat...

@@ -239,7 +239,7 @@ def main(args: argparse.Namespace):
     logger.info(f"")
     logger.info(f"")
     
-    input("press any key to continue...")
+    # input("press any key to continue...")
 
     try:
         server.run()

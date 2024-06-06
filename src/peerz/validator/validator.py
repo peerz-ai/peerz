@@ -32,15 +32,15 @@ class Validator:
         self.updater.ready.wait()
         while True:
             try:
-                peerIds, throughputs, layers = prepare_data_for_signing(self.updater.state)
-                signature_hex = sign_data(self.private_key, peerIds, throughputs, layers)
-                print(peerIds, throughputs, layers, signature_hex)
+                peerIds, throughputs, layers, total = prepare_data_for_signing(self.updater.state)
+                signature_hex = sign_data(self.private_key, peerIds, throughputs, layers, total)
+                print(peerIds, throughputs, layers, total, signature_hex)
 
                 self.dht.store(
                     key="_peerz.validators",
                     subkey=self.address,
                     value=dict(peerIds=peerIds, throughputs=throughputs, layers=layers, signature=signature_hex),
-                    expiration_time=get_dht_time() + 3600,
+                    expiration_time=get_dht_time() + 20,
                 )
             except Exception:
                 logger.error("Failed to update signature", exc_info=True)

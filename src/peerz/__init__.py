@@ -17,7 +17,7 @@ from peerz.models import *
 from peerz.utils import *
 from peerz.utils.logging import initialize_logs as _initialize_logs
 
-__version__ = "2.3.1.dev1"
+__version__ = "0.1.0"
 
 
 if not os.getenv("PEERZ_IGNORE_DEPENDENCY_VERSION"):
