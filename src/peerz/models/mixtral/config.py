@@ -18,7 +18,8 @@ class DistributedMixtralConfig(MixtralConfig, ClientConfig, PTuneConfig, LMHeadC
     attn_class = MixtralAttention
     block_prefix = "model.layers"
 
-    num_key_value_groups = 1
+    def num_key_value_groups(self):
+        return self.num_heads // self.num_key_value_heads
 
     @classmethod
     def from_pretrained(
