@@ -1,6 +1,10 @@
 import argparse
 
+from hivemind import DHT, get_logger
+from peerz.validator.state_updater import StateUpdaterThread
 from peerz.validator.validator import Validator
+
+logger = get_logger(__name__)
 
 def args(parser: argparse.ArgumentParser):
     parser.add_argument(
@@ -22,8 +26,13 @@ def args(parser: argparse.ArgumentParser):
     return parser
     
 def main(args: argparse.Namespace):
+    dht = DHT(args.initial_peers, start=True)
+    updater = StateUpdaterThread(dht, daemon=True, initial_peers=args.initial_peers)
+    updater.start()
+    updater.ready.wait()
     validator = Validator(
-        initial_peers=args.initial_peers,
+        dht=dht,
+        updater=updater,
         address=args.address,
         private_key=args.private_key,
     )

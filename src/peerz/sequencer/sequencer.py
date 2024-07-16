@@ -7,30 +7,11 @@ import threading
 from typing import List
 import json
 from web3 import Web3
-from peerz.constants import PROTOCOL_ADDRESS, RPC_URL
+from peerz.utils.consensus import contract
 
 logger = hivemind.get_logger(__name__)
 
-# Get the directory of the current script
-script_dir = os.path.dirname(__file__)
-
-# Construct the path to the JSON file relative to the script location
-# For example, if the JSON file is in the parent directory of the script
-abi_file_path = os.path.join(script_dir, 'abi.json')
-
-# Load the ABI
-with open(abi_file_path, 'r') as abi_file:
-    contract_abi = json.load(abi_file)
-
-# Setup Web3 connection (example with a local Ethereum node)
-w3 = Web3(Web3.HTTPProvider(RPC_URL))
-
-# Assuming you have the contract's address
-contract_address = PROTOCOL_ADDRESS
-
-# Create the contract instance
-contract = w3.eth.contract(address=contract_address, abi=contract_abi)
-
+contract = contract()
 
 class Sequencer:
     def __init__(

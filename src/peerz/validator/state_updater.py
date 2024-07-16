@@ -8,7 +8,7 @@ import hivemind
 import simplejson
 
 from peerz.constants import UPDATE_PERIOD
-from peerz.validator.health import fetch_health_state, fetch_health_state2
+from peerz.validator.health import fetch_health_state
 from peerz.validator.metrics import get_prometheus_metrics
 
 logger = hivemind.get_logger(__name__)
@@ -27,9 +27,7 @@ class StateUpdaterThread(threading.Thread):
         while True:
             start_time = time.perf_counter()
             try:
-                self.state = fetch_health_state2(self.dht, self.initial_peers)
-                print(self.state)
-
+                self.state = fetch_health_state(self.dht, self.initial_peers)
                 self.ready.set()
                 logger.info(f"Fetched new state in {time.perf_counter() - start_time:.1f} sec")
             except Exception:
@@ -53,13 +51,3 @@ class StateUpdaterThread(threading.Thread):
         logger.info("Updater Thread shut down successfully")
 
 
-def json_default(value):
-    if is_dataclass(value):
-        return asdict(value)
-    if isinstance(value, Enum):
-        return value.name.lower()
-    if isinstance(value, hivemind.PeerID):
-        return value.to_base58()
-    if isinstance(value, datetime.datetime):
-        return value.timestamp()
-    raise TypeError(f"Can't serialize {repr(value)}")
